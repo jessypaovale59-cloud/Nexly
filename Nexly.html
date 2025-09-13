@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Nexly – Dashboard Personal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="estiloNexly.css">
+  <!-- FontAwesome para iconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+</head>
+<body>
+
+<!-- ===== Login ===== -->
+<section id="login" class="card center glass-card" style="display:block; max-width:400px; margin:6rem auto;">
+  <img src="img/logoN.jpg" alt="Nexly" class="logo-login" style="width:82px; border-radius:50%; box-shadow:0 0 18px #2563eb80;">
+  <h2 class="login-title">Iniciar sesión</h2>
+  <input type="text" id="nombre" placeholder="Nombre completo" autocomplete="name">
+  <input type="email" id="correo" placeholder="Correo electrónico" autocomplete="email">
+  <button class="btn ripple" onclick="entrar()">Entrar</button>
+</section>
+
+<!-- ===== Dashboard principal ===== -->
+<div id="dashboard-app" style="display:none;">
+
+  <!-- ===== Drawer Sidebar ===== -->
+  <aside class="sidebar" id="sidebar" aria-hidden="true">
+    <div class="sidebar-header">
+      <span class="close-menu" onclick="toggleSidebar()" aria-label="Cerrar menú"><i class="fa fa-times"></i></span>
+      <img src="img/logoN.jpg" alt="Nexly Logo" class="logo">
+      <div class="menu-user">
+        <img src="img/perfil.jpg" id="sidebar-avatar" alt="Perfil" class="sidebar-avatar">
+        <span id="sidebar-nombre" class="sidebar-nombre"></span>
+        <span id="sidebar-correo" class="sidebar-correo"></span>
+      </div>
+    </div>
+    <nav>
+      <ul>
+        <li id="nav-tareas" onclick="seleccionMenu('tareas')" class="active"><i class="fa fa-list-check"></i> <span>Tareas</span> <span class="active-indicator"></span></li>
+        <li id="nav-gastos" onclick="seleccionMenu('gastos')"><i class="fa fa-wallet"></i> <span>Gastos</span> <span class="active-indicator"></span></li>
+        <li id="nav-recomendaciones" onclick="seleccionMenu('recomendaciones')"><i class="fa fa-lightbulb"></i> <span>Recomendaciones</span> <span class="active-indicator"></span></li>
+        <li id="nav-perfil" onclick="seleccionMenu('perfil')"><i class="fa fa-user"></i> <span>Perfil</span> <span class="active-indicator"></span></li>
+      </ul>
+    </nav>
+    <button class="logout-btn" onclick="logout()"><i class="fa fa-sign-out"></i> Salir</button>
+  </aside>
+  <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()" aria-hidden="true"></div>
+
+  <div class="main-content" id="main-content">
+    <div class="topbar">
+      <button class="icon-btn menu-btn" aria-label="Abrir menú" onclick="toggleSidebar()"><i class="fa fa-bars"></i></button>
+      <div style="flex:1;"></div>
+      <button id="notif-btn" class="icon-btn ripple" aria-label="Notificaciones" onclick="toggleNotifications()">
+        <i class="fa fa-bell"></i><span id="notif-badge" class="badge" style="display:none;">0</span>
+      </button>
+      <button class="icon-btn ripple" onclick="toggleDarkMode()" aria-label="Modo oscuro"><i class="fa fa-moon"></i></button>
+      <span class="profile-name">
+        <img src="img/perfil.jpg" id="foto-perfil-bar" alt="foto" class="profile-photo">
+        <span id="perfil-nombre-bar"></span>
+      </span>
+    </div>
+
+    <!-- Panel de Notificaciones -->
+    <div id="notif-panel" class="notif-panel" style="display:none;">
+      <div class="notif-header">
+        <h3>Notificaciones</h3>
+        <button class="link small ripple" onclick="markAllRead()">Marcar como leídas</button>
+      </div>
+      <ul id="notif-list" class="notif-list"></ul>
+    </div>
+
+    <!-- ===== Secciones ===== -->
+    <section id="tareas" class="seccion" style="display:block;">
+      <h2><i class="fa fa-list-check"></i> Tareas pendientes</h2>
+      <div class="card glass-card">
+        <input type="text" id="nueva-tarea" placeholder="Escribe tu nueva tarea">
+        <input type="date" id="fecha-tarea">
+        <button class="btn ripple" onclick="agregarTarea()">Agregar Tarea</button>
+      </div>
+      <ul id="lista-tareas"></ul>
+    </section>
+
+    <section id="gastos" class="seccion" style="display:none;">
+      <h2><i class="fa fa-wallet"></i> Control de Gastos</h2>
+      <div class="card grid-4 glass-card" style="display:grid; grid-template-columns:repeat(4,1fr); gap:1rem;">
+        <select id="categoria-gasto">
+          <option value="">Selecciona categoría</option>
+          <option value="Comida">Comida</option>
+          <option value="Entretenimiento">Entretenimiento</option>
+          <option value="Transporte">Transporte</option>
+          <option value="Salud">Salud</option>
+          <option value="Hogar">Hogar</option>
+        </select>
+        <input type="number" id="monto-gasto" placeholder="Monto" min="0" step="0.01">
+        <input type="date" id="fecha-gasto">
+        <input type="text" id="desc-gasto" placeholder="Descripción">
+        <button class="btn full ripple" onclick="agregarGasto()">Agregar Gasto</button>
+      </div>
+      <table id="tabla-gastos" class="glass-table">
+        <thead>
+          <tr>
+            <th>Categoría</th>
+            <th>Monto</th>
+            <th>Fecha</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="body-gastos"></tbody>
+      </table>
+    </section>
+
+    <section id="recomendaciones" class="seccion" style="display:none;">
+      <h2><i class="fa fa-lightbulb"></i> Recomendaciones</h2>
+      <div class="postits">
+        <div class="postit glass-card" draggable="true">Bloquea 25 min para terminar el reporte</div>
+        <div class="postit glass-card" draggable="true">Ya alcanzaste tu límite de gasto semanal</div>
+        <div class="postit glass-card" draggable="true">Revisa tu correo de notificaciones</div>
+        <div class="postit glass-card" draggable="true">Planifica la próxima semana</div>
+      </div>
+    </section>
+
+    <section id="perfil" class="seccion" style="display:none;">
+      <h2><i class="fa fa-user"></i> Perfil</h2>
+      <div class="card center glass-card">
+        <img src="img/perfil.jpg" id="foto-perfil" alt="Foto de perfil" class="foto" style="box-shadow:0 0 18px #2563eb80;">
+        <input type="file" onchange="cambiarFoto(event)">
+        <p>Nombre: <span id="perfil-nombre"></span></p>
+        <p>Correo: <span id="perfil-correo"></span></p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="nexly.js"></script>
+</body>
+</html>
